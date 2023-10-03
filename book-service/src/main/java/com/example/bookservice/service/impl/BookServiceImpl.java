@@ -73,9 +73,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public ResponseEntity<Void> takeBook(long bookId) {
+    public ResponseEntity<Void> takeBook(long bookId, String token) {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
-        HttpEntity<Void> requestEntity = new HttpEntity<>(null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
         if (optionalBook.isPresent()) {
             return restTemplate.exchange(
                     LIBRARY_SERVICE_URL + "take-book/{variable}",
@@ -90,9 +92,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public ResponseEntity<Void> returnBook(long id) {
+    public ResponseEntity<Void> returnBook(long id, String token) {
         Optional<Book> optionalBook = bookRepository.findById(id);
-        HttpEntity<Void> requestEntity = new HttpEntity<>(null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
         if (optionalBook.isPresent()) {
             return restTemplate.exchange(
                     LIBRARY_SERVICE_URL + "return-book/{variable}",

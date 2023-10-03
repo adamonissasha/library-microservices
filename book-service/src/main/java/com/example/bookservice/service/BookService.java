@@ -18,7 +18,7 @@ public interface BookService {
 
     void deleteBook(long id);
 
-    ResponseEntity<Void> takeBook(long id);
+    ResponseEntity<Void> takeBook(long id, String token);
 
-    ResponseEntity<Void> returnBook(long id);
+    ResponseEntity<Void> returnBook(long id, String token);
 }

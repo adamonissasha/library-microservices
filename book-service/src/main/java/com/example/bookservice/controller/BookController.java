@@ -58,12 +58,14 @@ public class BookController {
     }
 
     @PostMapping("/take-book/{id}")
-    public ResponseEntity<?> takeBook(@PathVariable("id") long id) {
-        return bookService.takeBook(id);
+    public ResponseEntity<?> takeBook(@PathVariable("id") long id,
+                                      @RequestHeader("Authorization") String token) {
+        return bookService.takeBook(id, token);
     }
 
     @PostMapping("/return-book/{id}")
-    public ResponseEntity<?> returnBook(@PathVariable("id") long id) {
-        return bookService.returnBook(id);
+    public ResponseEntity<?> returnBook(@PathVariable("id") long id,
+                                        @RequestHeader("Authorization") String token) {
+        return bookService.returnBook(id, token);
     }
 }
