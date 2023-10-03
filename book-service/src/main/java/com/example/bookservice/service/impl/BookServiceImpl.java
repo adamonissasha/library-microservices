@@ -5,15 +5,15 @@ import com.example.bookservice.model.Book;
 import com.example.bookservice.repository.BookRepository;
 import com.example.bookservice.service.BookService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -107,6 +107,32 @@ public class BookServiceImpl implements BookService {
             );
         } else {
             throw new BookNotFoundException(BOOK_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getFreeBooks(String token) {
+        List<Book> books = bookRepository.findAll();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
+        ResponseEntity<ArrayList<Long>> response = restTemplate.exchange(
+                LIBRARY_SERVICE_URL + "free-books",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        if (response.getStatusCode() == HttpStatus.OK) {
+            List<Long> ids = response.getBody();
+            List<Book> freeBooks = books.stream()
+                    .filter(book -> {
+                        assert ids != null;
+                        return !ids.contains(book.getId());
+                    }).toList();
+            return ResponseEntity.ok(freeBooks);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

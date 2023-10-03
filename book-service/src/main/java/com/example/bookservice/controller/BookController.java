@@ -147,4 +147,16 @@ public class BookController {
                                                 required = true) String token) {
         return bookService.returnBook(id, token);
     }
+
+    @GetMapping("/get-free-books")
+    @Operation(summary = "Get free books", description = "Get all free books in the library.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully returned the book."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
+    public ResponseEntity<?> getFreeBooks(@RequestHeader("Authorization")
+                                        @Parameter(description = "Bearer token for authentication.",
+                                                required = true) String token) {
+        return bookService.getFreeBooks(token);
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,4 +16,7 @@ public interface LibraryRepository extends JpaRepository<LibraryRecord, Long> {
                                                                                 LocalDate endDate);
 
     Optional<LibraryRecord> findByBookIdAndBookStatus(Long bookId, BookStatus bookStatus);
+
+    List<LibraryRecord> findAllByBookStatusAndEndDateGreaterThanEqual(BookStatus bookStatus,
+                                                                      LocalDate endDate);
 }

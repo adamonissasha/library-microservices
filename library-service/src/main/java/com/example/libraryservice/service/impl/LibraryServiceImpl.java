@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +47,13 @@ public class LibraryServiceImpl implements LibraryService {
                     throw new BookFreeException("The book is free!");
                 }
         );
+    }
+
+    @Override
+    public List<Long> getFreeBooks() {
+        return libraryRepository.findAllByBookStatusAndEndDateGreaterThanEqual(BookStatus.AWAITING_RETURN, LocalDate.now())
+                .stream()
+                .map(LibraryRecord::getBookId)
+                .collect(Collectors.toList());
     }
 }

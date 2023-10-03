@@ -21,4 +21,6 @@ public interface BookService {
     ResponseEntity<Void> takeBook(long id, String token);
 
     ResponseEntity<Void> returnBook(long id, String token);
+
+    ResponseEntity<?> getFreeBooks(String token);
 }

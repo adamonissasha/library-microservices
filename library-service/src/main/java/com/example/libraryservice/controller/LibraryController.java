@@ -8,10 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/library")
@@ -45,5 +44,15 @@ public class LibraryController {
                                                    example = "1", required = true) long id) {
         libraryService.returnBook(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @Operation(summary = "Get free books ID", description = "Get all free books id in the library.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully got free books."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
+            @ApiResponse(responseCode = "500", description = "Internal server error.")})
+    @GetMapping("/free-books")
+    public ResponseEntity<?> freeBooks() {
+        List<Long> ids = libraryService.getFreeBooks();
+        return ResponseEntity.ok(ids);
     }
 }
