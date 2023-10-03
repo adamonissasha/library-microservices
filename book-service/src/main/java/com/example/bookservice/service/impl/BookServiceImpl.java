@@ -5,15 +5,25 @@ import com.example.bookservice.model.Book;
 import com.example.bookservice.repository.BookRepository;
 import com.example.bookservice.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private static final String BOOK_NOT_FOUND = "Book not found!";
+    private static final String LIBRARY_SERVICE_URL = "http://localhost:8081/library/";
+
     private final BookRepository bookRepository;
+    private final RestTemplate restTemplate;
+
 
     @Override
     public void addBook(Book book) {
@@ -60,5 +70,39 @@ public class BookServiceImpl implements BookService {
                     throw new BookNotFoundException(BOOK_NOT_FOUND);
                 }
         );
+    }
+
+    @Override
+    public ResponseEntity<Void> takeBook(long bookId) {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(null);
+        if (optionalBook.isPresent()) {
+            return restTemplate.exchange(
+                    LIBRARY_SERVICE_URL + "take-book/{variable}",
+                    HttpMethod.POST,
+                    requestEntity,
+                    Void.class,
+                    bookId
+            );
+        } else {
+            throw new BookNotFoundException(BOOK_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> returnBook(long id) {
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(null);
+        if (optionalBook.isPresent()) {
+            return restTemplate.exchange(
+                    LIBRARY_SERVICE_URL + "return-book/{variable}",
+                    HttpMethod.POST,
+                    requestEntity,
+                    Void.class,
+                    id
+            );
+        } else {
+            throw new BookNotFoundException(BOOK_NOT_FOUND);
+        }
     }
 }

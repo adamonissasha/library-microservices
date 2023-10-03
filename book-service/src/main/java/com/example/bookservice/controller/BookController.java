@@ -56,4 +56,14 @@ public class BookController {
         bookService.editBook(id, updatedBook);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/take-book/{id}")
+    public ResponseEntity<?> takeBook(@PathVariable("id") long id) {
+        return bookService.takeBook(id);
+    }
+
+    @PostMapping("/return-book/{id}")
+    public ResponseEntity<?> returnBook(@PathVariable("id") long id) {
+        return bookService.returnBook(id);
+    }
 }
