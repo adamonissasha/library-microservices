@@ -16,3 +16,7 @@ spring:
           uri: http://localhost:8080
           predicates:
             - Path=/books/**
+        - id: auth
+          uri: http://localhost:8082
+          predicates:
+            - Path=/auth/**

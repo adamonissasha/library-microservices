@@ -1,0 +1,21 @@
+server:
+  port: 8082
+
+jwt:
+  secret: dfghiewuvgfdghusdciuheg3456789iuhgfcvb
+  lifetime: 30m
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/library_test_auth
+    username: postgres
+    password: enegul987
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+    hibernate:
+      ddl-auto: update
