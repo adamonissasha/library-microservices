@@ -1,0 +1,96 @@
+version: '3'
+
+networks:
+  library-microservices_my-network:
+    driver: bridge
+
+services:
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./auth-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - auth-service-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-service-postgres:5432/auth-db
+      SPRING_DATASOURCE_USERNAME: auth
+      SPRING_DATASOURCE_PASSWORD: auth
+    networks:
+      - library-microservices_my-network
+
+  auth-service-postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: auth-db
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports:
+      - "5432:5432"
+    networks:
+      - library-microservices_my-network
+
+  book-service:
+    container_name: book-service
+    build:
+      context: ./book-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - book-service-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://book-service-postgres:5432/book-db
+      SPRING_DATASOURCE_USERNAME: book
+      SPRING_DATASOURCE_PASSWORD: book
+      LIBRARY_SERVICE_URI: http://library-service:8083/library/
+    networks:
+      - library-microservices_my-network
+
+  book-service-postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: book-db
+      POSTGRES_USER: book
+      POSTGRES_PASSWORD: book
+    ports:
+      - "5433:5432"
+    networks:
+      - library-microservices_my-network
+
+  library-service:
+    container_name: library-service
+    build:
+      context: ./library-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - library-service-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://library-service-postgres:5432/library-db
+      SPRING_DATASOURCE_USERNAME: library
+      SPRING_DATASOURCE_PASSWORD: library
+    networks:
+      - library-microservices_my-network
+
+  library-service-postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: library-db
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library
+    ports:
+      - "5434:5432"
+    networks:
+      - library-microservices_my-network
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "8765:8765"
+    networks:
+      - library-microservices_my-network
+    environment:
+      AUTH_SERVICE_URI: http://auth-service:8082
+      BOOK_SERVICE_URI: http://book-service:8080

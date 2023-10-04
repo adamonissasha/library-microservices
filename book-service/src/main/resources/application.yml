@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: book-service
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/library_test
@@ -18,3 +20,6 @@ spring:
 
 jwt:
   secret: dfghiewuvgfdghusdciuheg3456789iuhgfcvb
+
+library-service:
+  url: ${LIBRARY_SERVICE_URI:http://localhost:8083/library/}

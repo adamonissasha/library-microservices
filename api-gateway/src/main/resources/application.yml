@@ -13,10 +13,10 @@ spring:
           lower-case-service-id: true
       routes:
         - id: books
-          uri: http://localhost:8080
+          uri: ${BOOK_SERVICE_URI:http://localhost:8080}
           predicates:
             - Path=/books/**
         - id: auth
-          uri: http://localhost:8082
+          uri: ${AUTH_SERVICE_URI:http://localhost:8082}
           predicates:
             - Path=/auth/**

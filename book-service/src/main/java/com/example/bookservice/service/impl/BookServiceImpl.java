@@ -5,6 +5,7 @@ import com.example.bookservice.model.Book;
 import com.example.bookservice.repository.BookRepository;
 import com.example.bookservice.service.BookService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -13,13 +14,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private static final String BOOK_NOT_FOUND = "Book not found!";
-    private static final String LIBRARY_SERVICE_URL = "http://localhost:8081/library/";
+    @Value("${library-service.url}")
+    private String libraryServiceUrl;
 
     private final BookRepository bookRepository;
     private final RestTemplate restTemplate;
@@ -80,7 +81,7 @@ public class BookServiceImpl implements BookService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
         if (optionalBook.isPresent()) {
             return restTemplate.exchange(
-                    LIBRARY_SERVICE_URL + "take-book/{variable}",
+                    libraryServiceUrl + "take-book/{variable}",
                     HttpMethod.POST,
                     requestEntity,
                     Void.class,
@@ -99,7 +100,7 @@ public class BookServiceImpl implements BookService {
         HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
         if (optionalBook.isPresent()) {
             return restTemplate.exchange(
-                    LIBRARY_SERVICE_URL + "return-book/{variable}",
+                    libraryServiceUrl + "return-book/{variable}",
                     HttpMethod.POST,
                     requestEntity,
                     Void.class,
@@ -117,7 +118,7 @@ public class BookServiceImpl implements BookService {
         headers.set("Authorization", token);
         HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
         ResponseEntity<ArrayList<Long>> response = restTemplate.exchange(
-                LIBRARY_SERVICE_URL + "free-books",
+                libraryServiceUrl + "free-books",
                 HttpMethod.GET,
                 requestEntity,
                 new ParameterizedTypeReference<>() {
