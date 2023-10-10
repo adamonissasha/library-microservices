@@ -1,4 +1,4 @@
-package com.example.bookservice.dto;
+package com.example.bookservice.dto.response;
 
 import com.example.bookservice.model.Genre;
 import lombok.*;
@@ -8,8 +8,9 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDTO {
-    private String ISBN;
+public class BookResponse {
+    private long id;
+    private String isbn;
     private String name;
     private Genre genre;
     private String description;

@@ -16,8 +16,8 @@ public class Book {
     @Column(name = "id")
     private long id;
 
-    @Column
-    private String ISBN;
+    @Column(unique = true)
+    private String isbn;
 
     @Column
     private String name;

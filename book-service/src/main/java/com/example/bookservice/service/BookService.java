@@ -1,26 +1,20 @@
 package com.example.bookservice.service;
 
-import com.example.bookservice.model.Book;
-import org.springframework.http.ResponseEntity;
+import com.example.bookservice.dto.request.BookRequest;
+import com.example.bookservice.dto.response.BookResponse;
 
 import java.util.List;
 
 public interface BookService {
-    void addBook(Book book);
+    BookResponse addBook(BookRequest createBookRequest, String token);
 
-    List<Book> getAllBooks();
+    List<BookResponse> getAllBooks();
 
-    Book getBookById(long id);
+    BookResponse getBookById(long id);
 
-    Book getBookByISBN(String isbn);
+    BookResponse getBookByISBN(String isbn);
 
-    void editBook(long id, Book book);
+    BookResponse editBook(long id, BookRequest bookRequest);
 
     void deleteBook(long id);
-
-    ResponseEntity<Void> takeBook(long id, String token);
-
-    ResponseEntity<Void> returnBook(long id, String token);
-
-    ResponseEntity<?> getFreeBooks(String token);
 }

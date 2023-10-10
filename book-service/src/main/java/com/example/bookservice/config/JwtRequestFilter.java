@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,10 +29,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Value("${jwt.secret}")
     private String secret;
     private static final String ROLE = "ROLE_ADMIN";
+    public static final String BEARER_TOKEN_PREFIX = "Bearer ";
+    public static final String JWT_CLAIM_USERNAME = "username";
 
     private String extractToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith(BEARER_TOKEN_PREFIX)) {
             return authHeader.substring(7);
         }
         return null;
@@ -75,6 +78,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
                 .build();
         DecodedJWT jwt = verifier.verify(token);
-        return jwt.getClaim("username").asString();
+        return jwt.getClaim(JWT_CLAIM_USERNAME).asString();
     }
 }

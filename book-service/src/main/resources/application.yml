@@ -22,4 +22,4 @@ jwt:
   secret: dfghiewuvgfdghusdciuheg3456789iuhgfcvb
 
 library-service:
-  url: ${LIBRARY_SERVICE_URI:http://localhost:8083/library/}
+  url: ${LIBRARY_SERVICE_URI:http://localhost:8083/library}

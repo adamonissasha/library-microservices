@@ -1,6 +1,7 @@
 package com.example.bookservice.controller;
 
-import com.example.bookservice.dto.BookDTO;
+import com.example.bookservice.dto.request.BookRequest;
+import com.example.bookservice.dto.response.BookResponse;
 import com.example.bookservice.model.Book;
 import com.example.bookservice.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,9 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
-    private final ModelMapper modelMapper;
 
     @PostMapping()
     @Operation(summary = "Create a new book",
@@ -33,12 +32,14 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Bad request, invalid data provided."),
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<Void> addBook(@RequestBody
-                                        @Parameter(description = "The book data in JSON format.", required = true)
-                                        BookDTO bookDTO) {
-        Book book = this.modelMapper.map(bookDTO, Book.class);
-        bookService.addBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookResponse addBook(@RequestBody
+                                @Parameter(description = "The book data in JSON format.", required = true)
+                                BookRequest createBookRequest,
+                                @RequestHeader(HttpHeaders.AUTHORIZATION)
+                                @Parameter(description = "Bearer token for authentication.",
+                                        required = true) String token) {
+        return bookService.addBook(createBookRequest, token);
     }
 
     @GetMapping()
@@ -49,9 +50,9 @@ public class BookController {
                             array = @ArraySchema(schema = @Schema(implementation = Book.class)))),
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> books = bookService.getAllBooks();
-        return ResponseEntity.ok(books);
+    @ResponseStatus(HttpStatus.OK)
+    public List<BookResponse> getAllBooks() {
+        return bookService.getAllBooks();
     }
 
     @GetMapping("/{id}")
@@ -62,11 +63,12 @@ public class BookController {
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "404", description = "Book not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<?> getBookById(@PathVariable("id")
-                                         @Parameter(description = "Unique ID of the book.",
-                                                 example = "1", required = true) long id) {
-        Book book = bookService.getBookById(id);
-        return ResponseEntity.ok(book);
+    @ResponseStatus(HttpStatus.OK)
+    public BookResponse getBookById(@PathVariable("id")
+                                    @Parameter(description = "Unique ID of the book.",
+                                            example = "1", required = true) long id) {
+
+        return bookService.getBookById(id);
     }
 
     @GetMapping("/isbn/{isbn}")
@@ -77,11 +79,11 @@ public class BookController {
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "404", description = "Book not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<?> getBookByISBN(@PathVariable("isbn")
-                                           @Parameter(description = "ISBN of the book.",
-                                                   example = "1", required = true) String isbn) {
-        Book book = bookService.getBookByISBN(isbn);
-        return ResponseEntity.ok(book);
+    @ResponseStatus(HttpStatus.OK)
+    public BookResponse getBookByISBN(@PathVariable("isbn")
+                                      @Parameter(description = "ISBN of the book.",
+                                              example = "1", required = true) String isbn) {
+        return bookService.getBookByISBN(isbn);
     }
 
     @DeleteMapping("/{id}")
@@ -91,11 +93,11 @@ public class BookController {
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "404", description = "Book not found."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<String> deleteBookById(@PathVariable("id")
-                                                 @Parameter(description = "Unique ID of the book to be deleted.",
-                                                         example = "1", required = true) Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteBookById(@PathVariable("id")
+                               @Parameter(description = "Unique ID of the book to be deleted.",
+                                       example = "1", required = true) Long id) {
         bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
@@ -105,58 +107,13 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Invalid request data or ID not found."),
             @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<String> editBookById(@PathVariable("id")
-                                               @Parameter(description = "Unique ID of the book to be updated.",
-                                                       example = "1", required = true) Long id,
-                                               @RequestBody
-                                               @Parameter(description = "Updated book data.",
-                                                       required = true) BookDTO updatedBookDTO) {
-        Book updatedBook = this.modelMapper.map(updatedBookDTO, Book.class);
-        bookService.editBook(id, updatedBook);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/take-book/{id}")
-    @Operation(summary = "Take book by ID", description = "Take a book by its ID from the library.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully taken the book."),
-            @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
-            @ApiResponse(responseCode = "404", description = "Book not found."),
-            @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<?> takeBook(@PathVariable("id")
-                                      @Parameter(description = "Unique ID of the book to be taken.",
-                                              example = "1", required = true) long id,
-                                      @RequestHeader("Authorization")
-                                      @Parameter(description = "Bearer token for authentication.",
-                                              required = true) String token) {
-        return bookService.takeBook(id, token);
-    }
-
-    @PostMapping("/return-book/{id}")
-    @Operation(summary = "Return book by ID", description = "Return a book to the library.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully returned the book."),
-            @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
-            @ApiResponse(responseCode = "404", description = "Book not found."),
-            @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<?> returnBook(@PathVariable("id")
-                                        @Parameter(description = "Unique ID of the book to be returned.",
-                                                example = "1", required = true) long id,
-                                        @RequestHeader("Authorization")
-                                        @Parameter(description = "Bearer token for authentication.",
-                                                required = true) String token) {
-        return bookService.returnBook(id, token);
-    }
-
-    @GetMapping("/get-free-books")
-    @Operation(summary = "Get free books", description = "Get all free books in the library.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully returned the book."),
-            @ApiResponse(responseCode = "401", description = "Unauthorized. Invalid token."),
-            @ApiResponse(responseCode = "500", description = "Internal server error.")})
-    public ResponseEntity<?> getFreeBooks(@RequestHeader("Authorization")
-                                        @Parameter(description = "Bearer token for authentication.",
-                                                required = true) String token) {
-        return bookService.getFreeBooks(token);
+    @ResponseStatus(HttpStatus.OK)
+    public BookResponse editBookById(@PathVariable("id")
+                                     @Parameter(description = "Unique ID of the book to be updated.",
+                                             example = "1", required = true) Long id,
+                                     @RequestBody
+                                     @Parameter(description = "Updated book data.",
+                                             required = true) BookRequest bookRequest) {
+        return bookService.editBook(id, bookRequest);
     }
 }
