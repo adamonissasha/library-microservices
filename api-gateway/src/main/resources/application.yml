@@ -16,6 +16,12 @@ spring:
           uri: ${BOOK_SERVICE_URI:http://localhost:8080}
           predicates:
             - Path=/books/**
+
+        - id: library
+          uri: ${LIBRARY_SERVICE_URI:http://localhost:8083}
+          predicates:
+            - Path=/library/**
+
         - id: auth
           uri: ${AUTH_SERVICE_URI:http://localhost:8082}
           predicates:
