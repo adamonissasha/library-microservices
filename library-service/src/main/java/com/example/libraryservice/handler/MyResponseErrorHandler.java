@@ -1,7 +1,6 @@
-package com.example.bookservice.handler;
+package com.example.libraryservice.handler;
 
-import com.example.bookservice.exception.BookBusyException;
-import com.example.bookservice.exception.BookFreeException;
+import com.example.libraryservice.exception.BookNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -9,6 +8,9 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.IOException;
 
 public class MyResponseErrorHandler implements ResponseErrorHandler {
+    private static final String BOOK_NOT_FOUND_MESSAGE = "Book not found!";
+    private static final String ERROR = "Error ";
+
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
         return !response.getStatusCode().is2xxSuccessful();
@@ -16,12 +18,10 @@ public class MyResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
-        if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
-            throw new BookBusyException("This book is busy!");
-        } else if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-            throw new BookFreeException("The book is free!");
+        if (response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            throw new BookNotFoundException(BOOK_NOT_FOUND_MESSAGE);
         } else {
-            throw new RuntimeException(response.getStatusCode() + response.getStatusText());
+            throw new RuntimeException(ERROR + response.getStatusCode() + response.getStatusText());
         }
     }
 }

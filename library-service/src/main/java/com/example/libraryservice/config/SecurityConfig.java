@@ -27,7 +27,7 @@ public class SecurityConfig {
                         .requestMatchers("/library/**")
                         .authenticated()
                         .anyRequest()
-                        .permitAll())
+                        .authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptionHandling -> exceptionHandling

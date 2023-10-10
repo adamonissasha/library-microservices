@@ -11,12 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface LibraryRepository extends JpaRepository<LibraryRecord, Long> {
-    Optional<LibraryRecord> findByBookIdAndBookStatusAndEndDateGreaterThanEqual(Long bookId,
-                                                                                BookStatus bookStatus,
-                                                                                LocalDate endDate);
-
     Optional<LibraryRecord> findByBookIdAndBookStatus(Long bookId, BookStatus bookStatus);
-
-    List<LibraryRecord> findAllByBookStatusAndEndDateGreaterThanEqual(BookStatus bookStatus,
-                                                                      LocalDate endDate);
+    List<LibraryRecord> findAllByBookStatusAndEndDateGreaterThanEqual(BookStatus bookStatus, LocalDate endDate);
 }

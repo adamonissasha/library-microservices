@@ -20,3 +20,6 @@ spring:
 
 jwt:
   secret: dfghiewuvgfdghusdciuheg3456789iuhgfcvb
+
+book-service:
+  url: ${BOOK_SERVICE_URI:http://localhost:8080/books}
