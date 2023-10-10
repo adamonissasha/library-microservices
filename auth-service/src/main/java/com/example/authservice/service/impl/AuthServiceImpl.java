@@ -1,7 +1,9 @@
 package com.example.authservice.service.impl;
 
-import com.example.authservice.dto.JwtResponse;
-import com.example.authservice.exception.UsernameAlreadyExistsException;
+import com.example.authservice.dto.request.JwtRequest;
+import com.example.authservice.dto.request.NewUserRequest;
+import com.example.authservice.dto.response.JwtResponse;
+import com.example.authservice.dto.response.NewUserResponse;
 import com.example.authservice.model.User;
 import com.example.authservice.repository.UserRepository;
 import com.example.authservice.service.AuthService;
@@ -25,24 +27,33 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public JwtResponse createToken(String username, String password) throws BadCredentialsException {
+    public JwtResponse createToken(JwtRequest jwtRequest) throws BadCredentialsException {
+        String username = jwtRequest.getUsername();
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password));
+                new UsernamePasswordAuthenticationToken(username, jwtRequest.getPassword()));
+        String token = generateToken(username);
+        return JwtResponse.builder()
+                .token(token)
+                .build();
+    }
+
+    public String generateToken(String username) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        String token = jwtTokenUtils.generateAccessToken(userDetails);
-        return new JwtResponse(token);
+        return jwtTokenUtils.generateAccessToken(userDetails);
     }
 
     @Override
-    public void createNewUser(String username, String password) {
-        userRepository.findByUsername(username).ifPresentOrElse(
-                user -> {
-                    throw new UsernameAlreadyExistsException("Username already exists!");
-                },
-                () -> userRepository.save(User.builder()
-                        .username(username)
-                        .password(passwordEncoder.encode(password))
-                        .build())
-        );
+    public NewUserResponse createNewUser(NewUserRequest newUserRequest) {
+        String username = newUserRequest.getUsername();
+        User newUser = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(newUserRequest.getPassword()))
+                .build();
+        newUser = userRepository.save(newUser);
+        return NewUserResponse.builder()
+                .id(newUser.getId())
+                .username(newUser.getUsername())
+                .token(generateToken(username))
+                .build();
     }
 }

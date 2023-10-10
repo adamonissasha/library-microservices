@@ -1,8 +1,11 @@
 package com.example.authservice.service;
 
-import com.example.authservice.dto.JwtResponse;
+import com.example.authservice.dto.request.JwtRequest;
+import com.example.authservice.dto.request.NewUserRequest;
+import com.example.authservice.dto.response.JwtResponse;
+import com.example.authservice.dto.response.NewUserResponse;
 
 public interface AuthService {
-    JwtResponse createToken(String username, String password);
-    void createNewUser(String username, String password);
+    JwtResponse createToken(JwtRequest jwtRequest);
+    NewUserResponse createNewUser(NewUserRequest newUserRequest);
 }

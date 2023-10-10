@@ -1,9 +1,9 @@
-package com.example.authservice.dto;
+package com.example.authservice.dto.request;
 
 import lombok.Data;
 
 @Data
-public class RegistrationUserRequest {
+public class NewUserRequest {
     private String username;
     private String password;
 }
